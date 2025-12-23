@@ -1,23 +1,29 @@
-export interface EventHeader<K extends keyof Events> {
-  event_id: string
-  event_type: K
-  create_time: string
-  token: string
-  app_id: string
-  tenant_key: string
+import { Internal, Paginated, Pagination } from '../internal'
+
+declare module '../internal' {
+  interface Internal {
+    event: Event.Methods
+  }
 }
 
-export interface Events {}
-export type EventName = keyof Events
-
-// In fact, this is the 2.0 version of the event sent by Lark.
-// And only the 2.0 version has the `schema` field.
-export type EventPayload = {
-  [K in keyof Events]: {
-    schema: '2.0'
-    // special added field for TypeScript
-    type: K
-    header: EventHeader<K>
-    event: Events[K]
+export namespace Event {
+  export interface Methods {
+    outboundIp: OutboundIp.Methods
   }
-}[keyof Events]
+
+  export namespace OutboundIp {
+    export interface Methods {
+      /**
+       * 获取事件出口 IP
+       * @see https://open.feishu.cn/document/ukTMukTMukTM/uYDNxYjL2QTM24iN0EjN/event-v1/outbound_ip/list
+       */
+      list(query?: Pagination): Paginated<string, 'ip_list'>
+    }
+  }
+}
+
+Internal.define({
+  '/event/v1/outbound_ip': {
+    GET: { name: 'event.outboundIp.list', pagination: { argIndex: 0, itemsKey: 'ip_list' } },
+  },
+})
