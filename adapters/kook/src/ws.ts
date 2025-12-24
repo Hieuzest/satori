@@ -7,11 +7,14 @@ const heartbeatIntervals = [6, 2, 4]
 
 export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, KookBot<C, KookBot.BaseConfig & WsClient.Options>> {
   _sn = 0
+  _session_id?: string
   _ping: NodeJS.Timeout
   _heartbeat: NodeJS.Timeout
+  _hello: NodeJS.Timeout
 
   async prepare() {
-    const { url } = await this.bot.request('GET', '/gateway/index?compress=0')
+    let { url } = await this.bot.request('GET', '/gateway/index?compress=0')
+    if (this._session_id) url += `&resume=1&sn=${this._sn}&session_id=${this._session_id}`
     const headers = { Authorization: `Bot ${this.bot.config.token}` }
     return this.bot.ctx.http.ws(url, { headers })
   }
@@ -35,6 +38,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, K
 
   async accept() {
     this._sn = 0
+    this._hello = setTimeout(() => this.socket?.close(1000), 6 * Time.second)
     clearInterval(this._heartbeat)
 
     this.socket.addEventListener('message', async ({ data }) => {
@@ -52,12 +56,18 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, K
         const session = await adaptSession(this.bot, parsed.d)
         if (session) this.bot.dispatch(session)
       } else if (parsed.s === Signal.hello) {
+        if (parsed.d['code']) {
+          return this.bot.logger.error('gateway error')
+        }
+        this._session_id = parsed.d['session_id']
         this._heartbeat = setInterval(() => this.heartbeat(), Time.minute * 0.5)
+        clearTimeout(this._hello)
         await this.bot.getLogin()
         this.bot.online()
       } else if (parsed.s === Signal.pong) {
         clearTimeout(this._ping)
-      } else if (parsed.s === Signal.resume) {
+      } else if (parsed.s === Signal.reconnect) {
+        this._session_id = undefined
         this.socket.close(1000)
       }
     })

@@ -7,8 +7,9 @@ export enum Signal {
   hello,
   ping,
   pong,
-  reconnect,
   resume,
+  reconnect,
+  resumeAck,
 }
 
 export interface Payload {

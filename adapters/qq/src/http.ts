@@ -27,7 +27,7 @@ export class HttpServer<C extends Context = Context> extends Adapter<C, QQBot<C>
         const sig = await signAsync(new TextEncoder().encode(data), key)
         return ctx.body = {
           plain_token: payload.d.plain_token,
-          signature: Binary.toHex(sig),
+          signature: Binary.toHex(sig as any),
         }
       } else if (payload.op === Opcode.DISPATCH) {
         // https://bot.q.qq.com/wiki/develop/api-v2/dev-prepare/interface-framework/sign.html

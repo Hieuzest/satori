@@ -1,0 +1,10 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish_tag:
+    uses: koikirin/buildplate/.github/workflows/publish_tag.buildplate.yml@v1
