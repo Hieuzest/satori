@@ -1,0 +1,19 @@
+import { Adapter, Context, Schema } from '@satorijs/core';
+import { KookBot } from './bot';
+export declare class WsClient<C extends Context = Context> extends Adapter.WsClient<C, KookBot<C, KookBot.BaseConfig & WsClient.Options>> {
+    _sn: number;
+    _session_id?: string;
+    _ping: NodeJS.Timeout;
+    _heartbeat: NodeJS.Timeout;
+    _hello: NodeJS.Timeout;
+    prepare(): Promise<WebSocket>;
+    heartbeat(): void;
+    accept(): Promise<void>;
+}
+export declare namespace WsClient {
+    interface Options extends Adapter.WsClientConfig {
+        protocol: 'ws';
+        token: string;
+    }
+    const Options: Schema<Options>;
+}

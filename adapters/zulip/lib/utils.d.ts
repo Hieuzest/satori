@@ -1,0 +1,12 @@
+import { Session, Universal } from '@satorijs/core';
+import { ZulipBot } from './bot';
+import * as Zulip from './types';
+export declare function encodeHashComponent(str: string): string;
+export declare function by_stream_topic_url(stream_id: number, topic: string): string;
+type Event = Zulip.GetEventsResponse['events'][0];
+export declare function adaptSession(bot: ZulipBot, input: Event): Promise<Session<import("@satorijs/core").Context>>;
+export declare function setupMessage(payload: Universal.MessageLike, data: Zulip.MessagesBase): void;
+export declare function decodeMessage(bot: ZulipBot, data: Zulip.MessagesBase, message?: Universal.Message, payload?: Universal.MessageLike): Promise<Universal.Message>;
+export declare const decodeGuild: (stream: Zulip.BasicStream) => Universal.Guild;
+export declare const decodeUser: (user: Zulip.User) => Universal.User;
+export {};
