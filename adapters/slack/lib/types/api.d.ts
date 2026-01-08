@@ -1,0 +1,19 @@
+export declare namespace Api {
+    namespace Params {
+        interface Test {
+            error?: string;
+            foo?: string;
+        }
+    }
+}
+declare module './internal' {
+    interface Internal {
+        /**
+         * Checks API calling code.
+         * @see https://api.slack.com/methods/api.test
+         */
+        apiTest(token: TokenInput, params: Api.Params.Test): Promise<{
+            ok: boolean;
+        }>;
+    }
+}
