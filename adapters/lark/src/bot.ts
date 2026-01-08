@@ -179,8 +179,6 @@ export namespace LarkBot {
   export interface BaseConfig extends HTTP.Config {
     appId: string
     appSecret: string
-    encryptKey?: string
-    verificationToken?: string
   }
 
   export type Config = BaseConfig & (HttpServer.Options | WsClient.Options)
@@ -190,37 +188,28 @@ export namespace LarkBot {
       platform: Schema.union(['feishu', 'lark']).default('feishu').description('平台名称。'),
       appId: Schema.string().required().description('机器人的应用 ID。'),
       appSecret: Schema.string().role('secret').required().description('机器人的应用密钥。'),
-      encryptKey: Schema.string().role('secret').description('机器人的 Encrypt Key。'),
-      verificationToken: Schema.string().description('事件推送的验证令牌。'),
+      protocol: process.env.KOISHI_ENV === 'browser'
+        ? Schema.const('ws').default('ws')
+        : Schema.union(['http', 'ws']).description('选择要使用的协议。').default('http'),
     }),
     Schema.union([
-      Schema.intersect([
-        Schema.object({
-          platform: Schema.const('feishu') as any,
-        }),
-        HTTP.createConfig('https://open.feishu.cn/open-apis'),
-        Schema.object({
-          protocol: process.env.KOISHI_ENV === 'browser'
-            ? Schema.const('ws').default('ws')
-            : Schema.union(['http', 'ws']).description('选择要使用的协议。').default('ws'),
-        }),
-        Schema.union([
-          HttpServer.createConfig('/feishu'),
-          WsClient.Options,
-        ]),
-      ]),
       Schema.intersect([
         Schema.object({
           platform: Schema.const('lark').required(),
         }),
         HTTP.createConfig('https://open.larksuite.com/open-apis'),
-        Schema.object({
-          protocol: process.env.KOISHI_ENV === 'browser'
-            ? Schema.const('ws').default('ws')
-            : Schema.union(['http', 'ws']).description('选择要使用的协议。').default('ws'),
-        }),
         Schema.union([
           HttpServer.createConfig('/lark'),
+          WsClient.Options,
+        ]),
+      ]),
+      Schema.intersect([
+        Schema.object({
+          platform: Schema.const('feishu') as any,
+        }),
+        HTTP.createConfig('https://open.feishu.cn/open-apis'),
+        Schema.union([
+          HttpServer.createConfig('/feishu'),
           WsClient.Options,
         ]),
       ]),

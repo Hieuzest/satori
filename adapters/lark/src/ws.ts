@@ -5,14 +5,14 @@ import pb from 'protobufjs/light'
 
 enum FrameType {
   control = 0,
-  data = 1
+  data = 1,
 }
 
 enum MessageType {
   event = 'event',
   card = 'card',
   ping = 'ping',
-  pong = 'pong'
+  pong = 'pong',
 }
 
 interface FrameSegment {
@@ -176,7 +176,7 @@ export namespace WsClient {
 
   export const Options: Schema<Options> = Schema.intersect([
     Schema.object({
-      protocol: Schema.const('ws') as any,
+      protocol: Schema.const('ws').required(),
     }),
     Adapter.WsClientConfig,
   ])
